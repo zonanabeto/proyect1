@@ -7,7 +7,7 @@ var imagesBatman = ["./assets/BATMANPARADO.png","./assets/BATMAN LEFT.png","./as
 
 var imagesRobin = ["./assets/ROBINNORMAL.png","./assets/ROBINleft.png","./assets/ROBINRIGHT.png","./assets/ROBIN JUMPS.png"]
 
-
+var velMov; 
 var tablero = new Board();
 var batman = new Personajes(imagesBatman);
 var robin = new Personajes(imagesRobin);
@@ -15,7 +15,7 @@ var robin = new Personajes(imagesRobin);
 
 
 
-// var pipes =[];
+var plats =[];
 
 var intervalo = 0;
 var frames = 0;
@@ -33,6 +33,7 @@ function Board(){
     this.img.src = "./assets/fondo1.jpg";
     this.timer = 60;
     this.score = 0 
+    velMov = this.score
     this.pared = new Image();
     this.pared.src ="./assets/pared.jpg";
     
@@ -119,7 +120,7 @@ function Personajes(img){
     }.bind(this);
 
     this.draw = function(){
-        if(this.y <  this.alturaEscalones) this.y += 5;
+        if(this.y <  this.alturaEscalones) this.y += 7;
         
         ctx.drawImage(this.imgC,this.x,this.y,this.width,this.height);
         // if(this.y < 0 || this.y > canvas.height - this.height){
@@ -213,43 +214,50 @@ function Personajes(img){
 
 }
 
-// //pipes
+// plataforma
 
-// function Pipe(y,height){
-//     this.x = canvas.width;
-//     this.y = y;
-//     this.width = 50;
-//     this.height=height;
+function Plataforma(x,width){
+    this.x = x;
+    this.width = width;
+    this.height=30;
+    this.y = 0 - this.height;
+    this.score = 0 
 
-//     this.draw = function(){
-//         this.x --;
-//         ctx.fillStyle = "green"; 
-//         ctx.fillRect(this.x,this.y,this.width,this.height);
-//     }
+    this.draw = function(){
+        if(frames % 60 === 0) this.score++;
+
+        if(this.score<60 && this.score >= 5){this.y ++}
+        else if(this.score>=60 && this.score < 120){this.y +=2}
+        else if(this.score>=120 && this.score < 180){this.y +=3}
+        else if(this.score>=180 && this.score < 240){this.y +=4}
+        else if(this.score>=240 ){this.y +=6};
+
+       
+        ctx.fillStyle = "green"; 
+        ctx.fillRect(this.x,this.y,this.width,this.height);
+    }
 
 
-// }
+}
 
 
 
 
 
-// //aux function
-// function generatePipes(){
-//         if(!(frames % 200 === 0))return;
-//         var ventana = Math.floor(Math.random()*100)+50;
-//         var randomHeight = Math.floor(Math.random()* 200 ) + 50;
-//         var pipe = new Pipe(0,randomHeight);
-//         var pipe2 = new Pipe(randomHeight+ventana ,canvas.height-(randomHeight+ventana));
-//         pipes.push(pipe);
-//         pipes.push(pipe2);
-// }
+// aux function
+function generatePlat(){
+        if(!(frames % 200 === 0))return;
+        var randomWidth = Math.floor(Math.random()* 200 ) + 100;
+        var randomX = 100 + Math.floor(Math.random()*(500 -randomWidth)) 
+        var plat = new Plataforma(randomX,randomWidth);
+        plats.push(plat);
+}
 
-// function drawPipes(){
-//     pipes.forEach(function(pipe){
-//         pipe.draw();
-//     })
-// }
+function drawPlats(){
+    plats.forEach(function(plat){
+        plat.draw();
+    })
+}
 
 // function gameOver(){
 //     stop();
@@ -271,13 +279,13 @@ function Personajes(img){
 //main function
 
 function update(){
-    // generatePipes();
+    generatePlat();
     frames ++;
     console.log(frames);
     ctx.clearRect(0,0,canvas.width,canvas.height);
     tablero.draw();
     tablero.drawPared();
-    // drawPipes();
+    drawPlats();
     
     tablero.drawScore();
     tablero.drawTimer();
@@ -320,19 +328,7 @@ document.getElementById("pauseGame")
         stop();
     })
 
-// addEventListener("keydown",function(e){
-//     if(e.keyCode===37){
-//         batman.moveLeft();
-//     }
-   
-//     if(e.keyCode===39){
-//         batman.moveRight();
-//     }
-//     if(e.keyCode===32){
-//         batman.jump();
-//     }
 
-// })
 
 
 document.body.addEventListener("keydown", function (e) {
