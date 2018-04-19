@@ -143,44 +143,24 @@ function Personajes(img){
     //     }
     // }
     if(this.keys[39]){
-        this.imgC = this.img3;
+        if (this.jumping()){
+            this.imgC = this.img4
+        }else {this.imgC = this.img3}
         this.width = 50;
         if(this.velX < this.speed){
           this.velX++;
         }
     }
       if(this.keys[37]){
-        this.imgC = this.img2;
+        if (this.jumping()){
+            this.imgC = this.img4
+        }else {this.imgC = this.img2}
         this.width = 50;
         if(this.velX > -this.speed){
           this.velX--;
         }
       }
    
-    // if (this.keys[39]) {
-    //     if(this.y < this.alturaEscalones - 5){
-    //         this.imgC = this.img4;
-    //         this.width = 80;
-    //     }
-    //     else if(this.y >= this.alturaEscalones){
-    //         this.imgC = this.img3;
-    //         this.width = 40;}
-    //     if (this.velX < this.speed) {
-    //         this.velX++;
-    //     }
-    // }
-    // if (this.keys[37]) {
-    //     if(this.y < this.alturaEscalones -5 ){
-    //         this.imgC = this.img4;
-    //         this.width = 80;
-    //     }
-    //     else if(this.y >= this.alturaEscalones){
-    //         this.imgC = this.img2;
-    //         this.width = 40;}
-    //     if (this.velX > -this.speed) {
-    //         this.velX--;
-    //     }
-    // }
     }
 
     
@@ -304,7 +284,7 @@ function update(){
     tablero.draw();
     generatePlat();
     drawPlats();
-    robin.draw();
+    batman.draw();
     checkCollition();
 }
 
