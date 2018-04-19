@@ -2,24 +2,18 @@ var canvas = document.getElementById("mainGame");
 var ctx = canvas.getContext("2d");
 
 // //declaraciones
-
 var imagesBatman = ["./assets/BATMANPARADO.png","./assets/BATMAN LEFT.png","./assets/BATMAN RIGHT.png","./assets/BATMAN BRINCA.png"]
-
 var imagesRobin = ["./assets/ROBINNORMAL.png","./assets/ROBINleft.png","./assets/ROBINRIGHT.png","./assets/ROBIN JUMPS.png"]
 
-var velMov; 
 var tablero = new Board();
 var batman = new Personajes(imagesBatman);
 var robin = new Personajes(imagesRobin);
-
-
-
 
 var plats =[];
 
 var intervalo = 0;
 var frames = 0;
-
+var globalScore = 0;
 
 
 //classes
@@ -43,7 +37,7 @@ function Board(){
     }.bind(this);
 
     this.move= function(){
-
+        this.score = globalScore;
         if(this.score<60 && this.score >= 5)this.y++;
         if(this.score>=60 && this.score < 120)this.y +=2;
         if(this.score>=120 && this.score < 180)this.y +=3;
@@ -55,7 +49,6 @@ function Board(){
 
     this.drawScore = function(){
 
-        if(frames % 60 === 0) this.score++;
         ctx.font = "50px Avenir";
         ctx.fillStyle = "white";    
         ctx.fillText(this.score,125,100);
@@ -113,14 +106,14 @@ function Personajes(img){
     this.speed = 5;
     this.friction = 0.98;
     this.keys = [];
-    this.alturaEscalones = (canvas.height-120)
+    this.alturaEscalones = (canvas.height-this.height);
     
     this.img.onload = function(){
         this.draw();
     }.bind(this);
 
     this.draw = function(){
-        if(this.y <  this.alturaEscalones) this.y += 7;
+         this.y += 9;
         
         ctx.drawImage(this.imgC,this.x,this.y,this.width,this.height);
         // if(this.y < 0 || this.y > canvas.height - this.height){
@@ -137,18 +130,18 @@ function Personajes(img){
             this.x = 100;
         }
     
-        if (player.y > 495) {
-            player.y = 495;
-        } else if (player.y <= 5) {
-            player.y = 5;
-        }
+        // if (player.y > 495) {
+        //     player.y = 495;
+        // } else if (player.y <= 5) {
+        //     player.y = 5;
+        // }
     }
 
     this.move = function(){
     if (this.keys[32]) {
         this.imgC = this.img4
         this.width = 80
-       if((this.x+this.width) > (canvas.width-100-this.width))this.x = canvas.width - 100 - this.width;
+       if((this.x + this.width) > (canvas.width - 100 + this.width)) this.x = (canvas.width - 100 - this.width);
         if (this.velY > -this.speed) {
             this.velY=-20;
         }
@@ -180,34 +173,15 @@ function Personajes(img){
         }
     }
     }
-    // this.jump = function(){
-    //     this.imgC = this.img4
-    //     this.y -=20;
-    //     this.width = 80
-    //     if((this.x+this.width) > (canvas.width-100-this.width))this.x = canvas.width - 100 - this.width;
-    // }
-    // this.moveLeft = function(){
-    //     this.imgC = this.img2
-    //     
-    //    this.width = 40;
-       
-    // }
 
-    // this.moveRight = function(){
-    //     this.imgC = this.img3
-    //     this.width = 40;
-    //     if(this.x < canvas.width - 100 - this.width) this.x +=5;
-        
-    // }
     
 
-    // this.isTouching = function(pipe){
-    //     return (this.x < pipe.x + pipe.width) &&
-    //             (this.x + this.width > pipe.x)&&
-    //             (this.y < pipe.y + pipe.height)&&
-    //             (this.y + this.height > pipe.y);
+    this.isTouching = function(plat){
+        return (this.x < plat.x + plat.width) &&
+                (this.x + this.width > plat.x)&&
+                (this.y  < (plat.y - this.height));
 
-    // }
+    }
 
 
     
@@ -221,10 +195,12 @@ function Plataforma(x,width){
     this.width = width;
     this.height=30;
     this.y = 0 - this.height;
-    this.score = 0 
+    this.score = 0 ;
+    this.img = new Image();
+    this.img.src = "./assets/Captura de pantalla 2018-04-18 a la(s) 5.51.25 p. m..png"
 
     this.draw = function(){
-        if(frames % 60 === 0) this.score++;
+        this.score = globalScore;
 
         if(this.score<60 && this.score >= 5){this.y ++}
         else if(this.score>=60 && this.score < 120){this.y +=2}
@@ -233,8 +209,7 @@ function Plataforma(x,width){
         else if(this.score>=240 ){this.y +=6};
 
        
-        ctx.fillStyle = "green"; 
-        ctx.fillRect(this.x,this.y,this.width,this.height);
+        ctx.drawImage(this.img,this.x,this.y,this.width,this.height)
     }
 
 
@@ -243,12 +218,15 @@ function Plataforma(x,width){
 
 
 
-
 // aux function
 function generatePlat(){
-        if(!(frames % 200 === 0))return;
-        var randomWidth = Math.floor(Math.random()* 200 ) + 100;
+
+       
+    
+        if(!(frames % 80 === 0))return;
+        var randomWidth = Math.floor(Math.random()* 200 ) + 50;
         var randomX = 100 + Math.floor(Math.random()*(500 -randomWidth)) 
+        console.log(plats)
         var plat = new Plataforma(randomX,randomWidth);
         plats.push(plat);
 }
@@ -268,30 +246,36 @@ function drawPlats(){
 
 // //funcion de validacion
 
-// function checkCollition(){
-//     pipes.forEach(function(pipe){
-//        if(flappy.isTouching(pipe)) gameOver();
-//     })
-// }
+function checkCollition(){
+    plats.forEach(function(plat){
+       if(robin.isTouching(plat))  {
+           robin.alturaEscalones = plat.y + robin;
+           
+    }
+    })
+}
 
 
 
 //main function
 
 function update(){
-    generatePlat();
+    if (frames % 60 ===0) {
+        globalScore++
+    }
     frames ++;
-    console.log(frames);
     ctx.clearRect(0,0,canvas.width,canvas.height);
     tablero.draw();
     tablero.drawPared();
+    generatePlat();
     drawPlats();
-    
     tablero.drawScore();
     tablero.drawTimer();
-    batman.move();
-    batman.draw();
-    // checkCollition();
+    robin.move();
+    robin.draw();
+
+console.log(frames)
+    checkCollition();
 }
 
 function start(){
@@ -303,7 +287,8 @@ function start(){
     } , 1000/60)
     // pipes=[]
     // flappy.y = 150;
-    frames = 0;
+    
+    
     
 }
 
@@ -332,8 +317,8 @@ document.getElementById("pauseGame")
 
 
 document.body.addEventListener("keydown", function (e) {
-    batman.keys[e.keyCode] = true;
+    robin.keys[e.keyCode] = true;
 });
 document.body.addEventListener("keyup", function (e) {
-    batman.keys[e.keyCode] = false;
+    robin.keys[e.keyCode] = false;
 });
