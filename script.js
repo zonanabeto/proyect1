@@ -57,10 +57,13 @@ function Board(){
     }
 
     this.draw = function(){
+        
         this.move();
         ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
         ctx.drawImage(this.img,this.x,this.y - canvas.height,this.width,this.height)
-        
+        this.drawPared();
+        this.drawScore();
+        this.drawTimer();
 
     }
     
@@ -104,25 +107,112 @@ function Personajes(img){
     this.velY = 0;
     this.velX = 0;
     this.speed = 5;
-    this.friction = 0.98;
+    this.friction = 0.8;
+    this.gravity = 0.98;
+    this.jumpStrength =  5;
+    this.grounded = false;
+
     this.keys = [];
-    this.alturaEscalones = (canvas.height-this.height);
     
     this.img.onload = function(){
         this.draw();
     }.bind(this);
 
+
+    this.jumping =function(){
+        if(this.keys[38] || this.keys[32]){
+            this.imgC = this.img4
+            this.width = 80
+            if((this.x + this.width) > (canvas.width - 100 + this.width)) this.x = (canvas.width - 100 - this.width);
+            this.velY = -this.jumpStrength*2
+            return true;
+          }else {return false}
+        };
+
+    
+
+
+
+    this.move = function(){
+    // if (this.keys[32]) {
+    //     this.imgC = this.img4
+    //     this.width = 80
+    //    if((this.x + this.width) > (canvas.width - 100 + this.width)) this.x = (canvas.width - 100 - this.width);
+    //     if (this.velY > -this.speed) {
+    //         this.velY=-20;
+    //     }
+    // }
+    if(this.keys[39]){
+        this.imgC = this.img3;
+        this.width = 50;
+        if(this.velX < this.speed){
+          this.velX++;
+        }
+    }
+      if(this.keys[37]){
+        this.imgC = this.img2;
+        this.width = 50;
+        if(this.velX > -this.speed){
+          this.velX--;
+        }
+      }
+   
+    // if (this.keys[39]) {
+    //     if(this.y < this.alturaEscalones - 5){
+    //         this.imgC = this.img4;
+    //         this.width = 80;
+    //     }
+    //     else if(this.y >= this.alturaEscalones){
+    //         this.imgC = this.img3;
+    //         this.width = 40;}
+    //     if (this.velX < this.speed) {
+    //         this.velX++;
+    //     }
+    // }
+    // if (this.keys[37]) {
+    //     if(this.y < this.alturaEscalones -5 ){
+    //         this.imgC = this.img4;
+    //         this.width = 80;
+    //     }
+    //     else if(this.y >= this.alturaEscalones){
+    //         this.imgC = this.img2;
+    //         this.width = 40;}
+    //     if (this.velX > -this.speed) {
+    //         this.velX--;
+    //     }
+    // }
+    }
+
+    
+
+    // this.isTouching = function(plat){
+    //     return (this.x < plat.x + plat.width) &&
+    //             (this.x + this.width > plat.x)&&
+    //             (this.y  < (plat.y - this.height));
+
+    // }
+
+    this.piso = function(){
+        if(this.y >= canvas.height - this.height){
+            this.y = canvas.height - this.height;  
+          }   
+    }
+
+
     this.draw = function(){
-         this.y += 9;
+
+        this.jumping();
+        this.move();
+        this.piso();
+
+        this.x += this.velX;
+        this.velX *= this.friction;
+     //jump
+       this.y += this.velY;
+       this.velY += this.gravity;
         
         ctx.drawImage(this.imgC,this.x,this.y,this.width,this.height);
-        // if(this.y < 0 || this.y > canvas.height - this.height){
-        //     // gameOver();
-        // }
-        this.velY *= this.friction;
-        this.y += this.velY;
-        this.velX *= this.friction;
-        this.x += this.velX;
+       
 
         if (this.x >= 600 - this.width) {
             this.x = 600 - this.width;
@@ -130,61 +220,7 @@ function Personajes(img){
             this.x = 100;
         }
     
-        // if (player.y > 495) {
-        //     player.y = 495;
-        // } else if (player.y <= 5) {
-        //     player.y = 5;
-        // }
     }
-
-    this.move = function(){
-    if (this.keys[32]) {
-        this.imgC = this.img4
-        this.width = 80
-       if((this.x + this.width) > (canvas.width - 100 + this.width)) this.x = (canvas.width - 100 - this.width);
-        if (this.velY > -this.speed) {
-            this.velY=-20;
-        }
-    }
-
-   
-    if (this.keys[39]) {
-        if(this.y < this.alturaEscalones - 5){
-            this.imgC = this.img4;
-            this.width = 80;
-        }
-        else if(this.y >= this.alturaEscalones){
-            this.imgC = this.img3;
-            this.width = 40;}
-        if (this.velX < this.speed) {
-            this.velX++;
-        }
-    }
-    if (this.keys[37]) {
-        if(this.y < this.alturaEscalones -5 ){
-            this.imgC = this.img4;
-            this.width = 80;
-        }
-        else if(this.y >= this.alturaEscalones){
-            this.imgC = this.img2;
-            this.width = 40;}
-        if (this.velX > -this.speed) {
-            this.velX--;
-        }
-    }
-    }
-
-    
-
-    this.isTouching = function(plat){
-        return (this.x < plat.x + plat.width) &&
-                (this.x + this.width > plat.x)&&
-                (this.y  < (plat.y - this.height));
-
-    }
-
-
-    
 
 }
 
@@ -220,8 +256,6 @@ function Plataforma(x,width){
 
 // aux function
 function generatePlat(){
-
-       
     
         if(!(frames % 80 === 0))return;
         var randomWidth = Math.floor(Math.random()* 200 ) + 50;
@@ -260,21 +294,17 @@ function checkCollition(){
 //main function
 
 function update(){
+
     if (frames % 60 ===0) {
         globalScore++
     }
     frames ++;
     ctx.clearRect(0,0,canvas.width,canvas.height);
+
     tablero.draw();
-    tablero.drawPared();
     generatePlat();
     drawPlats();
-    tablero.drawScore();
-    tablero.drawTimer();
-    robin.move();
     robin.draw();
-
-console.log(frames)
     checkCollition();
 }
 
@@ -286,7 +316,7 @@ function start(){
     update();  
     } , 1000/60)
     // pipes=[]
-    // flappy.y = 150;
+    
     
     
     
@@ -315,10 +345,13 @@ document.getElementById("pauseGame")
 
 
 
+//movimiento de jugadores
 
 document.body.addEventListener("keydown", function (e) {
     robin.keys[e.keyCode] = true;
+    batman.keys[e.keyCode] = true;
 });
 document.body.addEventListener("keyup", function (e) {
     robin.keys[e.keyCode] = false;
+    batman.keys[e.keyCode] = false;
 });
