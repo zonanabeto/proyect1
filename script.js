@@ -430,7 +430,7 @@ function start(){
    
     if(intervalo>0)return;
     intervalo = setInterval(function(){
-    update2();  
+    update();  
     } , 1000/60)
     // pipes=[]
     tablero.music.play();
