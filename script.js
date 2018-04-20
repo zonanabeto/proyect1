@@ -135,6 +135,7 @@ function Personajes(img){
     this.jumpStrength =  5;
     this.grounded = false;
     this.jumping = false;
+    this.jumping2 = false;
 
     this.keys = [];
     
@@ -153,9 +154,19 @@ function Personajes(img){
             this.velY = -this.jumpStrength*4
             return true;
           }else {return false}
-        };
+        }
 
-    
+        this.jump2 =function(){
+            if(this.keys[87] || this.keys[83]){
+                if(this.jumping2) return;
+                this.jumping2 = true;
+                this.imgC = this.img4
+                this.width = 80
+                if((this.x + this.width) > (canvas.width - 100 + this.width)) this.x = (canvas.width - 100 - this.width);
+                this.velY = -this.jumpStrength*4
+                return true;
+              }else {return false}
+            }
 
 
 
@@ -182,6 +193,29 @@ function Personajes(img){
    
     }
 
+    this.move2 = function(){
+ 
+        if(this.keys[68]){
+            if (this.jump()){
+                this.imgC = this.img4
+            }else {this.imgC = this.img3}
+            this.width = 50;
+            if(this.velX < this.speed){
+              this.velX++;
+            }
+        }
+          if(this.keys[65]){
+            if (this.jump()){
+                this.imgC = this.img4
+            }else {this.imgC = this.img2}
+            this.width = 50;
+            if(this.velX > -this.speed){
+              this.velX--;
+            }
+          }
+       
+        }
+
     
 
     this.draw = function(){
@@ -205,9 +239,31 @@ function Personajes(img){
             this.x = 100;
         }
 
-        if(this.y > canvas.height + this.height){
-            gameOver();
+        
+    
+    }
+    this.draw2 = function(){
+
+        this.jump2();
+        this.move2();
+      
+
+        this.x += this.velX;
+        this.velX *= this.friction;
+     //jump
+       this.y += this.velY;
+       this.velY += this.gravity;
+        
+        ctx.drawImage(this.imgC,this.x,this.y,this.width,this.height);
+       
+
+        if (this.x >= 600 - this.width) {
+            this.x = 600 - this.width;
+        } else if (this.x <= 100) {
+            this.x = 100;
         }
+
+        
     
     }
 
@@ -335,6 +391,7 @@ function checkCollition(beto){
       //beto.velX *= -1;
     }else if(direction == "bottom"){
       beto.jumping = false;
+      beto.jumping2=false;
       beto.grounded = true;
       //player.velY = -player.jumpStrength*2
     }else if(direction == "top"){
@@ -406,6 +463,9 @@ function update(){
     batman.draw();
     checkCollition(batman);
     scores1.unshift(tablero.score);
+    if(batman.y > canvas.height + batman.height){
+        gameOver();
+    }
 
 }
 function update2(){
@@ -422,10 +482,15 @@ function update2(){
     drawPlats();
     tablero.drawScore();
     tablero.drawTimer();
-    robin.draw();
-    checkCollition(robin);
-    scores1.unshift(tablero.score);
+    batman.draw();
 
+    robin.draw2();
+    checkCollition(robin);
+    checkCollition(batman)
+    scores1.unshift(tablero.score);
+    if(batman.y > canvas.height + batman.height && robin.y > canvas.height + robin.height){
+        gameOver();
+    }
 }
 
 function start(){
