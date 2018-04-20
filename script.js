@@ -320,6 +320,9 @@ function gameOver(){
     ctx.fillStyle = "red";
     ctx.font = "50px Black Han Sans";
     ctx.fillText("Your Score:  " + scores1[0], 110,300);
+    ctx.fillStyle = "blue";
+    ctx.font = "50px Black Han Sans";
+    ctx.fillText("Press R to reload", 110, 380);
 }
 
 
@@ -524,3 +527,10 @@ document.body.addEventListener("keyup", function (e) {
     robin.keys[e.keyCode] = false;
     batman.keys[e.keyCode] = false;
 });
+
+addEventListener('keydown',function(e){
+    if(e.keyCode === 82){
+        location.reload();
+        event.preventDefault();
+    }
+ })
